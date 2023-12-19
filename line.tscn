@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://gaeksst5qbmr"]
+
+[ext_resource type="Script" path="res://line.gd" id="1_l6c1i"]
+
+[sub_resource type="Gradient" id="Gradient_3v34b"]
+colors = PackedColorArray(1, 0.419608, 0, 1, 0, 0.427451, 0.0901961, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_6j4f4"]
+font_color = Color(0, 0, 0, 1)
+
+[node name="Line" type="Line2D"]
+points = PackedVector2Array(0, 0, 0, 0)
+width = 5.0
+gradient = SubResource("Gradient_3v34b")
+script = ExtResource("1_l6c1i")
+
+[node name="LabelContainer" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Label" type="Label" parent="LabelContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(500, 0)
+offset_left = -248.0
+offset_top = -30.0
+offset_right = 252.0
+offset_bottom = -4.0
+text = "Test"
+label_settings = SubResource("LabelSettings_6j4f4")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
