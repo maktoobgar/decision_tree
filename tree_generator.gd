@@ -9,12 +9,15 @@ func _init():
 	var _pass = NodeTree.new("Pass", 2)
 	var _fail = NodeTree.new("Fail", 2)
 	var studied = NodeTree.new("Studied", 1).add_decision("Yes", _pass).add_decision("No", _fail)
-	_tree = NodeTree.new("Age", 0).add_decision("Age>18", studied).add_decision("Age<18", NodeTree.new("Fail", 1).add_decision("No", NodeTree.new("Fail", 2)))
+	var path = NodeTree.new("Sucked", 1).add_decision("No", NodeTree.new("Fail", 2)).add_decision("Yes", NodeTree.new("Pass", 2)).add_decision("Maybe", NodeTree.new("Pass", 2))
+	_tree = NodeTree.new("Age", 0).add_decision("Age>18", path).add_decision("Age<18", studied)
 
 # Generate a tree
 func generate_tree(tree: NodeTree) -> void:
 	var layers = _layers(tree, 0, [])
+	print(layers)
 	var max_in_each_layer = _get_max_in_each_layers(layers)
+	print(max_in_each_layer)
 	var nodes = _draw_tree(max_in_each_layer, 0)
 	_draw_over_nodes(nodes.duplicate(true), tree, layers, true)
 	_delete_all_remaining_nodes(nodes)
@@ -51,6 +54,10 @@ func _draw_tree(max_in_each_layer: Array, layer_number: int) -> Array:
 	var length = MIN_LENGTH * max_in_each_layer[layer_number]
 	for i in range(max_in_each_layer[layer_number]):
 		var branch: Branch = SceneManager.create_scene_instance("branch")
+		if layer_number == len(max_in_each_layer) - 1:
+			branch.last_node = true
+		if layer_number == 0:
+			branch.first_node = true
 		branch.global_position.x = MIN_LENGTH * (i + 1) - (length / 2) - (MIN_LENGTH / 2)
 		branch.global_position.y = layer_number * HEIGHT
 		self.add_child(branch)
@@ -59,20 +66,22 @@ func _draw_tree(max_in_each_layer: Array, layer_number: int) -> Array:
 
 # Actually put values inside the nodes of the tree
 func _draw_over_nodes(nodes: Array, tree: NodeTree, layers: Array, first: bool = false) -> void:
+	var i = len(nodes) - 1
 	if first:
-		tree.branch = nodes[len(nodes) - 1]
-		nodes.pop_back().apply_node_tree(tree)
+		tree.branch = nodes[i]
+		nodes[i].apply_node_tree(tree)
+		i -= 1
 	for key in tree.decisions.keys():
 		var decision: NodeTree = tree.decisions[key]
-		decision.branch = nodes[len(nodes) - 1]
-		nodes[len(nodes) - 1].apply_node_tree(decision)
-		tree.branch.connect_line_to_branch(nodes.pop_back(), key)
+		decision.branch = nodes[i]
+		nodes[i].apply_node_tree(decision)
+		tree.branch.connect_line_to_branch(nodes[i], key)
+		i -=1
 	for key in tree.decisions.keys():
 		var decision: NodeTree = tree.decisions[key]
 		var length = layers[decision.layer + 1] if decision.layer + 1 < len(layers) else 0
-		_draw_over_nodes(nodes.duplicate(true), decision, layers)
-		for i in range(length):
-			nodes.pop_back()
+		_draw_over_nodes(nodes.slice(0, i + 1), decision, layers)
+		i -= length
 
 # Delete nodes that didn't get used
 func _delete_all_remaining_nodes(nodes: Array) -> void:

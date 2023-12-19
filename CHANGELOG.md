@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🚀 perf: optimization on algorithms + docs
 <!-- ## [0.0.2] - 2022-12-07
 
 ### Added

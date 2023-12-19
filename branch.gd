@@ -5,6 +5,8 @@ class_name Branch
 
 @export var text: String = "Test": get = _get_text, set = _set_text
 var node_tree: NodeTree = null
+var first_node: bool = false : set = _set_first_node
+var last_node: bool = false : set = _set_last_node
 
 @onready var input_position: Vector2i = %Input.position
 @onready var output_position: Vector2i = %Output.position
@@ -12,6 +14,18 @@ var _output_mouse_down: bool = false
 var _input_mouse_up: bool = false
 var _in_branches: Dictionary = {}
 var _out_branches: Dictionary = {}
+
+func _set_first_node(value: bool) -> void:
+	if !is_node_ready():
+		await self.ready
+	%Input.visible = !value
+	first_node = value
+
+func _set_last_node(value: bool) -> void:
+	if !is_node_ready():
+		await self.ready
+	%Output.visible = !value
+	last_node = value
 
 func _get_text() -> String:
 	return text
