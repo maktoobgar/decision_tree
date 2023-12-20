@@ -1,11 +1,11 @@
 [gd_scene load_steps=3 format=3 uid="uid://bex02hg3itp5c"]
 
-[ext_resource type="Script" path="res://camera_movement.gd" id="1_jh5my"]
+[ext_resource type="Script" path="res://scenes/camera_movement.gd" id="1_houjh"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_7555r"]
 
 [node name="Character" type="CharacterBody2D"]
-script = ExtResource("1_jh5my")
+script = ExtResource("1_houjh")
 metadata/_edit_group_ = true
 
 [node name="Camera2D" type="Camera2D" parent="."]

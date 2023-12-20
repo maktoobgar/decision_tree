@@ -1,0 +1,64 @@
+[gd_scene load_steps=3 format=3 uid="uid://btu2nlugkv8cu"]
+
+[ext_resource type="Script" path="res://scenes/attribute.gd" id="1_4fjoh"]
+[ext_resource type="PackedScene" uid="uid://bi6jkju7hbib4" path="res://scenes/input_control.tscn" id="2_ptpkt"]
+
+[node name="Attribute" type="VBoxContainer"]
+theme_override_constants/separation = 10
+script = ExtResource("1_4fjoh")
+
+[node name="Label" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "First Attribute"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Name" parent="." instance=ExtResource("2_ptpkt")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Attribute Name:"
+
+[node name="Type" parent="." instance=ExtResource("2_ptpkt")]
+unique_name_in_owner = true
+layout_mode = 2
+value = "Numerical"
+text = "Attribute Type:"
+options = Array[String](["Numerical", "Categorical"])
+initial_value = "0"
+input_type = "OptionButton"
+
+[node name="CategoriesMargin" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Categories" type="VBoxContainer" parent="CategoriesMargin"]
+layout_mode = 2
+
+[node name="CategoriesLabel" type="Label" parent="CategoriesMargin/Categories"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Categories"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Categories" type="VBoxContainer" parent="CategoriesMargin/Categories"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddCategory" type="Button" parent="CategoriesMargin/Categories"]
+layout_mode = 2
+text = "Add Category"
+
+[node name="Accept" type="Button" parent="."]
+layout_mode = 2
+text = "Accept"
+
+[connection signal="item_selected" from="Type" to="." method="_on_type_item_selected"]
+[connection signal="button_up" from="CategoriesMargin/Categories/AddCategory" to="." method="_on_add_category_button_up"]
+[connection signal="button_up" from="Accept" to="." method="_on_accept_button_up"]

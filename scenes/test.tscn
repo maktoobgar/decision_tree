@@ -1,0 +1,100 @@
+[gd_scene load_steps=5 format=3 uid="uid://cgnl3waui3caq"]
+
+[ext_resource type="Script" path="res://scenes/tree_generator.gd" id="1_50o3u"]
+[ext_resource type="PackedScene" uid="uid://bex02hg3itp5c" path="res://scenes/character.tscn" id="1_m04q6"]
+[ext_resource type="PackedScene" uid="uid://bi6jkju7hbib4" path="res://scenes/input_control.tscn" id="3_7pxsu"]
+[ext_resource type="PackedScene" uid="uid://btu2nlugkv8cu" path="res://scenes/attribute.tscn" id="4_by8l0"]
+
+[node name="World" type="Node2D"]
+script = ExtResource("1_50o3u")
+
+[node name="Character" parent="." instance=ExtResource("1_m04q6")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+visible = false
+
+[node name="Spliter" type="HBoxContainer" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Filler" type="MarginContainer" parent="UI/Spliter"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="SideMenu" type="VBoxContainer" parent="UI/Spliter"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.45
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="UI/Spliter/SideMenu"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Spliter/SideMenu/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="AttributesCount" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2" instance=ExtResource("3_7pxsu")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Attributes Count:"
+force_int = true
+force_min = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="InputButton" type="Button" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Input"
+
+[node name="DefineAttributesButton" type="Button" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Define Attributes"
+
+[node name="Attribute" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2" instance=ExtResource("4_by8l0")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="Separator" type="MarginContainer" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Generate" type="Button" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+disabled = true
+text = "Generate"
+
+[connection signal="text_changed" from="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2/AttributesCount" to="." method="_on_attributes_count_text_changed"]
+[connection signal="button_up" from="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2/HBoxContainer/DefineAttributesButton" to="." method="_on_define_attributes_button_button_up"]
+[connection signal="button_up" from="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2/Generate" to="." method="_on_button_button_up"]

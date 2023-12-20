@@ -4,6 +4,8 @@ extends Node2D
 const MIN_LENGTH = 300
 const HEIGHT = 150
 var _tree: NodeTree = null
+var attributes_count: int = 0
+var attributes: Array = []
 
 func _init():
 	var _pass = NodeTree.new("Pass", 2)
@@ -12,12 +14,14 @@ func _init():
 	var path = NodeTree.new("Sucked", 1).add_decision("No", NodeTree.new("Fail", 2)).add_decision("Yes", NodeTree.new("Pass", 2)).add_decision("Maybe", NodeTree.new("Pass", 2))
 	_tree = NodeTree.new("Age", 0).add_decision("Age>18", path).add_decision("Age<18", studied)
 
+func _ready():
+	Global.ui = %UI
+	%Attribute.attribute_defined.connect(_attribute_get_next_input)
+
 # Generate a tree
 func generate_tree(tree: NodeTree) -> void:
 	var layers = _layers(tree, 0, [])
-	print(layers)
 	var max_in_each_layer = _get_max_in_each_layers(layers)
-	print(max_in_each_layer)
 	var nodes = _draw_tree(max_in_each_layer, 0)
 	_draw_over_nodes(nodes.duplicate(true), tree, layers, true)
 	_delete_all_remaining_nodes(nodes)
@@ -92,3 +96,23 @@ func _delete_all_remaining_nodes(nodes: Array) -> void:
 # Generate a tree
 func _on_button_button_up():
 	generate_tree(_tree)
+
+func _on_attributes_count_text_changed(inputControl: InputControl):
+	attributes_count = int(inputControl.value)
+	%DefineAttributesButton.disabled = attributes_count <= 0
+
+func _on_define_attributes_button_button_up():
+	%AttributesCount.editable = false
+	_attribute_get_next_input("", "", [], -1)
+	attributes = []
+
+func _attribute_get_next_input(name: String, _type: String, categories: Array, id: int) -> void:
+	if id != -1:
+		attributes.append({"name": name, "type": _type, "categories": categories, "index": id})
+	if attributes_count <= id + 1:
+		%AttributesCount.editable = true
+		%InputButton.disabled = false
+		%Attribute.visible = false
+		print(attributes)
+		return
+	%Attribute.initialize(id + 1)

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bjcoh3wxe22xg"
-path="res://.godot/imported/branch.png-e9a2373a36fc483a1e4ca6863fb4c9ab.ctex"
+uid="uid://bdvv4n1unvuhk"
+path="res://.godot/imported/sphere.png-351122c1a3c44b6606ffa9871476fa41.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://branch.png"
-dest_files=["res://.godot/imported/branch.png-e9a2373a36fc483a1e4ca6863fb4c9ab.ctex"]
+source_file="res://resources/sphere.png"
+dest_files=["res://.godot/imported/sphere.png-351122c1a3c44b6606ffa9871476fa41.ctex"]
 
 [params]
 

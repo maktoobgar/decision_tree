@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://bi6jkju7hbib4"]
+
+[ext_resource type="Script" path="res://scenes/input_control.gd" id="1_j2sb5"]
+
+[node name="Input" type="HBoxContainer"]
+offset_right = 267.0
+offset_bottom = 23.0
+theme_override_constants/separation = 10
+script = ExtResource("1_j2sb5")
+editable = true
+
+[node name="Label" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+clip_text = true

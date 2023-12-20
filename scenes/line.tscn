@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://gaeksst5qbmr"]
 
-[ext_resource type="Script" path="res://line.gd" id="1_l6c1i"]
+[ext_resource type="Script" path="res://scenes/line.gd" id="1_f824x"]
 
 [sub_resource type="Gradient" id="Gradient_3v34b"]
 colors = PackedColorArray(1, 0.419608, 0, 1, 0, 0.427451, 0.0901961, 1)
@@ -12,7 +12,7 @@ font_color = Color(0, 0, 0, 1)
 points = PackedVector2Array(0, 0, 0, 0)
 width = 5.0
 gradient = SubResource("Gradient_3v34b")
-script = ExtResource("1_l6c1i")
+script = ExtResource("1_f824x")
 
 [node name="LabelContainer" type="Node2D" parent="."]
 unique_name_in_owner = true
