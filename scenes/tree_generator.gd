@@ -3,7 +3,10 @@ extends Node2D
 
 const MIN_LENGTH = 300
 const HEIGHT = 150
+
 var _tree: NodeTree = null
+var _generated_tree_nodes: Array = []
+var _inputs: Array = []
 var attributes_count: int = 0
 var attributes: Array = []
 
@@ -17,6 +20,12 @@ func _init():
 func _ready():
 	Global.ui = %UI
 	%Attribute.attribute_defined.connect(_attribute_get_next_input)
+	%Attribute.operation_canceled.connect(_cancel_attributes_receiving_operation)
+
+func _show_input_error() -> void:
+	%Popup.title = "Validation Error"
+	%Popup.dialog_text = "Not all input fields are valid, please provide one output"
+	%Popup.popup_centered()
 
 # Generate a tree
 func generate_tree(tree: NodeTree) -> void:
@@ -24,7 +33,7 @@ func generate_tree(tree: NodeTree) -> void:
 	var max_in_each_layer = _get_max_in_each_layers(layers)
 	var nodes = _draw_tree(max_in_each_layer, 0)
 	_draw_over_nodes(nodes.duplicate(true), tree, layers, true)
-	_delete_all_remaining_nodes(nodes)
+	_generated_tree_nodes = _delete_all_remaining_nodes(nodes)
 
 # Generate what max amount a node generates in the next level
 func _layers(branch: NodeTree, layer_number: int, layers: Array) -> Array:
@@ -62,7 +71,7 @@ func _draw_tree(max_in_each_layer: Array, layer_number: int) -> Array:
 			branch.last_node = true
 		if layer_number == 0:
 			branch.first_node = true
-		branch.global_position.x = MIN_LENGTH * (i + 1) - (length / 2) - (MIN_LENGTH / 2)
+		branch.global_position.x = MIN_LENGTH * (i + 1) - (length / 2.0) - (MIN_LENGTH / 2.0)
 		branch.global_position.y = layer_number * HEIGHT
 		self.add_child(branch)
 		nodes.append(branch)
@@ -88,14 +97,35 @@ func _draw_over_nodes(nodes: Array, tree: NodeTree, layers: Array, first: bool =
 		i -= length
 
 # Delete nodes that didn't get used
-func _delete_all_remaining_nodes(nodes: Array) -> void:
-	for node in nodes:
-		if node.node_tree == null:
-			node.queue_free()
+func _delete_all_remaining_nodes(nodes: Array) -> Array:
+	var removed_nodes: Array = []
+	for i in range(len(nodes)):
+		if nodes[i].node_tree == null:
+			nodes[i].queue_free()
+			removed_nodes.append(i)
+	removed_nodes.reverse()
+	for i in removed_nodes:
+		nodes.remove_at(i)
+	return nodes
+
+func _calculate_the_tree(tree: NodeTree) -> NodeTree:
+	for key in tree.decisions:
+		var decision = tree.decisions[key]
+		decision.calculate_uncertainty()
+		if decision.uncertainty == 0.0:
+			continue
+		var node = Calculator.calculate_decision(attributes, decision.data, true)
+		node.parent = tree
+		tree.decisions[key] = node
+	return tree
 
 # Generate a tree
-func _on_button_button_up():
-	generate_tree(_tree)
+func _on_generate_button_up():
+	_on_clear_button_up()
+	var tree = Calculator.calculate_decision(attributes, _inputs, true)
+	tree = _calculate_the_tree(tree)
+	generate_tree(tree)
+	%Character.position = Vector2.ZERO
 
 func _on_attributes_count_text_changed(inputControl: InputControl):
 	attributes_count = int(inputControl.value)
@@ -103,16 +133,56 @@ func _on_attributes_count_text_changed(inputControl: InputControl):
 
 func _on_define_attributes_button_button_up():
 	%AttributesCount.editable = false
-	_attribute_get_next_input("", "", [], -1)
+	%DefineAttributesButton.disabled = true
+	_attribute_get_next_input("", "", false, [], -1)
 	attributes = []
 
-func _attribute_get_next_input(name: String, _type: String, categories: Array, id: int) -> void:
+func _attribute_get_next_input(_name: String, _type: String, output: bool, categories: Array, id: int) -> void:
 	if id != -1:
-		attributes.append({"name": name, "type": _type, "categories": categories, "index": id})
+		attributes.append(Attribute.new(_name, _type, output, categories, id))
 	if attributes_count <= id + 1:
+		var found = false
+		for attribute in attributes:
+			if attribute.output:
+				found = true
+				break
+		if !found:
+			_show_input_error()
+			attributes = []
 		%AttributesCount.editable = true
-		%InputButton.disabled = false
+		%DefineAttributesButton.disabled = false
+		%InputButton.disabled = len(attributes) == 0
 		%Attribute.visible = false
-		print(attributes)
 		return
-	%Attribute.initialize(id + 1)
+	%Attribute.initialize(id + 1, id == -1)
+
+func _on_clear_button_up():
+	for node in _generated_tree_nodes:
+		node.queue_free()
+	_generated_tree_nodes = []
+
+func _on_input_button_button_up():
+	%FileDialog.popup_centered()
+
+func _on_file_dialog_file_selected(path: String):
+	var file = FileAccess.open(path, FileAccess.READ)
+	var content = file.get_as_text()
+	var splits = content.split("\n", false)
+	_inputs = []
+	for line in splits:
+		var data = {}
+		var line_splits = line.strip_escapes().split(",", false)
+		var i = 0
+		for attribute in attributes:
+			data[attribute.name] = line_splits[i]
+			if attribute.type == "Numerical":
+				data[attribute.name] = float(line_splits[i])
+			i += 1
+		_inputs.append(data)
+
+func _cancel_attributes_receiving_operation() -> void:
+	attributes = []
+	%AttributesCount.editable = true
+	%DefineAttributesButton.disabled = false
+	%InputButton.disabled = true
+	%Attribute.visible = false

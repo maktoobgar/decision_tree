@@ -51,7 +51,8 @@ func _input(event):
 	if line and out_branch and event is InputEventMouseMotion:
 		line.destination_point = get_global_mouse_position()
 	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.is_released() and ui:
-		ui.visible = !ui.visible
+		if not Engine.is_editor_hint():
+			ui.visible = !ui.visible
 
 func number_to_string(num: int) -> String:
 	if num > 99:

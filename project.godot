@@ -20,6 +20,13 @@ config/icon="res://icon.svg"
 SceneManager="*res://addons/scene_manager/scene_manager.tscn"
 Scenes="*res://addons/scene_manager/scenes.gd"
 Global="*res://scenes/global.gd"
+Calculator="*res://scenes/calculator.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/resizable=false
 
 [editor_plugins]
 

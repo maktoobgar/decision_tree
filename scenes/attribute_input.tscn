@@ -1,11 +1,11 @@
 [gd_scene load_steps=3 format=3 uid="uid://btu2nlugkv8cu"]
 
-[ext_resource type="Script" path="res://scenes/attribute.gd" id="1_4fjoh"]
+[ext_resource type="Script" path="res://scenes/attribute_input.gd" id="1_q0aen"]
 [ext_resource type="PackedScene" uid="uid://bi6jkju7hbib4" path="res://scenes/input_control.tscn" id="2_ptpkt"]
 
 [node name="Attribute" type="VBoxContainer"]
 theme_override_constants/separation = 10
-script = ExtResource("1_4fjoh")
+script = ExtResource("1_q0aen")
 
 [node name="Label" type="Label" parent="."]
 unique_name_in_owner = true
@@ -27,6 +27,13 @@ text = "Attribute Type:"
 options = Array[String](["Numerical", "Categorical"])
 initial_value = "0"
 input_type = "OptionButton"
+
+[node name="Output" parent="." instance=ExtResource("2_ptpkt")]
+unique_name_in_owner = true
+layout_mode = 2
+value = "0"
+text = "Output:"
+input_type = "CheckBox"
 
 [node name="CategoriesMargin" type="MarginContainer" parent="."]
 unique_name_in_owner = true
@@ -55,10 +62,21 @@ layout_mode = 2
 layout_mode = 2
 text = "Add Category"
 
-[node name="Accept" type="Button" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Accept" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Accept"
+
+[node name="Cancel" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Cancel All"
 
 [connection signal="item_selected" from="Type" to="." method="_on_type_item_selected"]
 [connection signal="button_up" from="CategoriesMargin/Categories/AddCategory" to="." method="_on_add_category_button_up"]
-[connection signal="button_up" from="Accept" to="." method="_on_accept_button_up"]
+[connection signal="button_up" from="HBoxContainer/Accept" to="." method="_on_accept_button_up"]
+[connection signal="button_up" from="HBoxContainer/Cancel" to="." method="_on_cancel_button_up"]

@@ -15,12 +15,13 @@ class_name InputControl
 @export var max_value: float = 0
 @export var force_min: bool = false
 @export var force_max: bool = false
-@export_enum("Text", "OptionButton") var input_type: String = "Text" : set = _set_type, get = _get_type
+@export_enum("Text", "OptionButton", "CheckBox") var input_type: String = "Text" : set = _set_type, get = _get_type
 
 var input: Control = null
 
 signal text_changed(inputControl: InputControl)
 signal item_selected(inputControl: InputControl)
+signal checkbox_value_changed(inputControl: InputControl)
 
 func create_input_control(value: String) -> void:
 	if value == "Text":
@@ -46,6 +47,13 @@ func create_input_control(value: String) -> void:
 						input.selected = i
 		else:
 			input.selected = -1
+	elif value == "CheckBox":
+		var checkBox = CheckBox.new()
+		_delete_current_input()
+		_make_current_input(checkBox)
+		checkBox.toggled.connect(_toggled)
+		if initial_value != "":
+			checkBox.button_pressed = initial_value == "1"
 
 func _ready() -> void:
 	create_input_control(input_type)
@@ -80,13 +88,13 @@ func _get_with_label() -> bool:
 func _set_editable(value: bool) -> void:
 	if !self.is_node_ready():
 		await self.ready
-	if input_type == "OptionButton":
+	if input_type == "OptionButton" or input_type == "CheckBox":
 		input.disabled = !value
 	elif input_type == "Text":
 		input.editable = value
 
 func _get_editable() -> bool:
-	if input_type == "OptionButton":
+	if input_type == "OptionButton" or input_type == "CheckBox":
 		return !input.disabled
 	elif input_type == "Text":
 		return input.editable
@@ -97,6 +105,8 @@ func _set_value(value: String) -> void:
 		await self.ready
 	if input_type == "Text":
 		input.text = value
+	elif input_type == "CheckBox":
+		input.button_pressed = true if value == "1" else false if value == "0" else input.button_pressed
 	if input_type == "OptionButton":
 		if value == "":
 			input.selected = 0
@@ -112,6 +122,8 @@ func _get_value() -> String:
 		return input.text
 	elif input_type == "OptionButton":
 		return options[input.selected]
+	elif input_type == "CheckBox":
+		return "1" if input.button_pressed else "0"
 	return ""
 
 func _set_type(value: String) -> void:
@@ -134,6 +146,9 @@ func _text_changed(text: String) -> void:
 
 func _item_selected(index: int) -> void:
 	item_selected.emit(self)
+
+func _toggled(pressed: bool) -> void:
+	checkbox_value_changed.emit(self)
 
 func _force_int() -> void:
 	var value = int(input.text)
