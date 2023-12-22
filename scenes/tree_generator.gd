@@ -1,7 +1,7 @@
 @tool
 extends Node2D
 
-const MIN_LENGTH = 300
+const MIN_LENGTH = 170
 const HEIGHT = 150
 
 var _tree: NodeTree = null
@@ -11,10 +11,10 @@ var attributes_count: int = 0
 var attributes: Array = []
 
 func _init():
-	var _pass = NodeTree.new("Pass", 2)
+	var _pass = NodeTree.new("U Good?", 2).add_decision("Yes", NodeTree.new("Passs", 3)).add_decision("No", NodeTree.new("Fail", 3))
 	var _fail = NodeTree.new("Fail", 2)
 	var studied = NodeTree.new("Studied", 1).add_decision("Yes", _pass).add_decision("No", _fail)
-	var path = NodeTree.new("Sucked", 1).add_decision("No", NodeTree.new("Fail", 2)).add_decision("Yes", NodeTree.new("Pass", 2)).add_decision("Maybe", NodeTree.new("Pass", 2))
+	var path = NodeTree.new("Sucked", 1).add_decision("No", NodeTree.new("Faill", 2)).add_decision("Yes", NodeTree.new("Pass", 2)).add_decision("Maybe", NodeTree.new("Pass", 2))
 	_tree = NodeTree.new("Age", 0).add_decision("Age>18", path).add_decision("Age<18", studied)
 
 func _ready():
@@ -30,25 +30,28 @@ func _show_input_error() -> void:
 # Generate a tree
 func generate_tree(tree: NodeTree) -> void:
 	var layers = _layers(tree, 0, [])
-	var max_in_each_layer = _get_max_in_each_layers(layers)
-	var nodes = _draw_tree(max_in_each_layer, 0)
-	_draw_over_nodes(nodes.duplicate(true), tree, layers, true)
-	_generated_tree_nodes = _delete_all_remaining_nodes(nodes)
+	var max_in_each_layer = _get_max_in_each_layer(layers)
+	var min_lengths_each_layer = _get_min_lengths_in_each_layer(layers)
+	_generated_tree_nodes = _draw_tree(tree, layers, max_in_each_layer, min_lengths_each_layer)
 
 # Generate what max amount a node generates in the next level
 func _layers(branch: NodeTree, layer_number: int, layers: Array) -> Array:
 	if layer_number > len(layers) - 1:
 		layers.append(0)
-	for key in branch.decisions.keys():
-		layers = _layers(branch.decisions[key], layer_number + 1, layers)
+	if len(branch.decisions) == 0:
+		layers[layer_number] = len(branch.parent.decisions) if layers[layer_number] < len(branch.parent.decisions) else layers[layer_number]
+		return layers
+	for key in branch.decisions:
+		var layers_temp = _layers(branch.decisions[key], layer_number + 1, layers)
+		layers[layer_number] = layers_temp[layer_number] if layers_temp[layer_number] > layers[layer_number] else layers[layer_number]
 	if branch.parent and len(branch.parent.decisions) > layers[layer_number - 1]:
-		layers[layer_number] = len(branch.parent.decisions)
-	elif not branch.parent:
+		layers[layer_number - 1] = len(branch.parent.decisions) if layers[layer_number - 1] < len(branch.parent.decisions) else layers[layer_number - 1]
+	elif branch.parent == null:
 		layers[layer_number] = 1
 	return layers
 
 # Generate How many nodes each layer has
-func _get_max_in_each_layers(layers: Array) -> Array:
+func _get_max_in_each_layer(layers: Array) -> Array:
 	var output: Array = []
 	for i in range(len(layers)):
 		if i > len(output) - 1:
@@ -59,53 +62,39 @@ func _get_max_in_each_layers(layers: Array) -> Array:
 		output[i] = output[i-1] * layers[i]
 	return output
 
+func _get_min_lengths_in_each_layer(layers: Array, index: int = 0) -> Array:
+	var output: Array = []
+	if index >= len(layers):
+		for i in range(len(layers)):
+			output.append(0.0)
+		return output
+	output = _get_min_lengths_in_each_layer(layers, index + 1)
+	if index == len(layers) - 1:
+		output[index] = MIN_LENGTH
+	else:
+		output[index] = output[index + 1] * layers[index + 1]
+	return output
+
 # Draw the full tree
-func _draw_tree(max_in_each_layer: Array, layer_number: int) -> Array:
+func _draw_tree(tree: NodeTree, layers: Array, max_in_each_layer: Array, min_lengths_each_layer: Array, layer_number: int = 0, i: int = 0, gap: int = 0) -> Array:
 	var nodes: Array = []
-	if layer_number < len(max_in_each_layer) - 1:
-		nodes = _draw_tree(max_in_each_layer, layer_number + 1)
-	var length = MIN_LENGTH * max_in_each_layer[layer_number]
-	for i in range(max_in_each_layer[layer_number]):
-		var branch: Branch = SceneManager.create_scene_instance("branch")
-		if layer_number == len(max_in_each_layer) - 1:
-			branch.last_node = true
-		if layer_number == 0:
-			branch.first_node = true
-		branch.global_position.x = MIN_LENGTH * (i + 1) - (length / 2.0) - (MIN_LENGTH / 2.0)
-		branch.global_position.y = layer_number * HEIGHT
-		self.add_child(branch)
-		nodes.append(branch)
-	return nodes
-
-# Actually put values inside the nodes of the tree
-func _draw_over_nodes(nodes: Array, tree: NodeTree, layers: Array, first: bool = false) -> void:
-	var i = len(nodes) - 1
-	if first:
-		tree.branch = nodes[i]
-		nodes[i].apply_node_tree(tree)
-		i -= 1
-	for key in tree.decisions.keys():
-		var decision: NodeTree = tree.decisions[key]
-		decision.branch = nodes[i]
-		nodes[i].apply_node_tree(decision)
-		tree.branch.connect_line_to_branch(nodes[i], key)
-		i -=1
-	for key in tree.decisions.keys():
-		var decision: NodeTree = tree.decisions[key]
-		var length = layers[decision.layer + 1] if decision.layer + 1 < len(layers) else 0
-		_draw_over_nodes(nodes.slice(0, i + 1), decision, layers)
-		i -= length
-
-# Delete nodes that didn't get used
-func _delete_all_remaining_nodes(nodes: Array) -> Array:
-	var removed_nodes: Array = []
-	for i in range(len(nodes)):
-		if nodes[i].node_tree == null:
-			nodes[i].queue_free()
-			removed_nodes.append(i)
-	removed_nodes.reverse()
-	for i in removed_nodes:
-		nodes.remove_at(i)
+	var branch: Branch = SceneManager.create_scene_instance("branch")
+	var previous_gap = (gap - i)/layers[layer_number]
+	if len(tree.decisions) == 0:
+		branch.last_node = true
+	if tree.parent == null:
+		branch.first_node = true
+	var length = min_lengths_each_layer[layer_number] * max_in_each_layer[layer_number]
+	branch.apply_node_tree(tree)
+	branch.global_position.x = min_lengths_each_layer[layer_number] * (i + 1) - (length / 2.0) - (min_lengths_each_layer[layer_number] / 2.0) + ((previous_gap) * min_lengths_each_layer[layer_number - 1])
+	branch.global_position.y = layer_number * HEIGHT
+	self.add_child(branch)
+	nodes.append(branch)
+	for j in range(len(tree.decisions.keys())):
+		var key = tree.decisions.keys()[j]
+		var new_nodes = _draw_tree(tree.decisions[key], layers, max_in_each_layer, min_lengths_each_layer, layer_number + 1, j, (layers[layer_number + 1] * gap) + j)
+		nodes.append_array(new_nodes)
+		branch.connect_line_to_branch(new_nodes[0], key)
 	return nodes
 
 func _calculate_the_tree(tree: NodeTree) -> NodeTree:
@@ -114,15 +103,18 @@ func _calculate_the_tree(tree: NodeTree) -> NodeTree:
 		decision.calculate_uncertainty()
 		if decision.uncertainty == 0.0:
 			continue
-		var node = Calculator.calculate_decision(attributes, decision.data, true)
+		var node = Calculator.calculate_decision(attributes, decision.data, false)
 		node.parent = tree
 		tree.decisions[key] = node
+		node = _calculate_the_tree(node)
 	return tree
 
 # Generate a tree
 func _on_generate_button_up():
+#	generate_tree(_tree)
+#	return
 	_on_clear_button_up()
-	var tree = Calculator.calculate_decision(attributes, _inputs, true)
+	var tree = Calculator.calculate_decision(attributes, _inputs, false)
 	tree = _calculate_the_tree(tree)
 	generate_tree(tree)
 	%Character.position = Vector2.ZERO
@@ -179,9 +171,11 @@ func _on_file_dialog_file_selected(path: String):
 				data[attribute.name] = float(line_splits[i])
 			i += 1
 		_inputs.append(data)
+	%Generate.disabled = len(_inputs) == 0
 
 func _cancel_attributes_receiving_operation() -> void:
 	attributes = []
+	%Generate.disabled = true
 	%AttributesCount.editable = true
 	%DefineAttributesButton.disabled = false
 	%InputButton.disabled = true

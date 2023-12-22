@@ -45,7 +45,7 @@ func calculate_uncertainty_based_on_correct_attribute() -> void:
 	var N: float = len(data)
 	for key in decisions:
 		var n: float = len(decisions[key].data)
-		if n == 0:
+		if n == 0 or N == 0:
 			continue
 		var sum2: float = 0
 		for i in range(len(all_data_in_categories_for_decisions[key])):
@@ -53,7 +53,7 @@ func calculate_uncertainty_based_on_correct_attribute() -> void:
 			if n2 == 0:
 				continue
 			sum2 += (n2/n)*(log(n/n2)/log(2))
-		sum = (n/N) * sum2
+		sum += (n/N) * sum2
 	self.uncertainty_based_on_correct_attribute = sum
 
 # 3

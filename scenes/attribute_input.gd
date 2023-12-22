@@ -42,16 +42,16 @@ func _get_attribute_output() -> bool:
 	return %Output.value == "1"
 
 func initialize(id: int, first: bool) -> void:
-	if first:
-		%Output.editable = true
+#	if first:
+#		%Output.editable = true
 	self.id = id
 	self.text = Global.get_attribute_name(id + 1)
 	self.visible = true
 
 func _on_accept_button_up():
 	attribute_defined.emit(attribute_name, attribute_type, attribute_output, categories, id)
-	if attribute_output:
-		%Output.editable = false
+#	if attribute_output:
+#		%Output.editable = false
 	attribute_name = ""
 	attribute_type = "0"
 	attribute_output = false
@@ -61,6 +61,7 @@ func _on_accept_button_up():
 		child.queue_free()
 
 func _on_type_item_selected(inputControl: InputControl):
+	attribute_output = attribute_type == "Categorical"
 	%CategoriesMargin.visible = inputControl.value == "Categorical"
 	categories = [] if inputControl.value == "Numerical" else categories
 	if inputControl.value == "Numerical":

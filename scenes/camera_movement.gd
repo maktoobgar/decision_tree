@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-const SPEED = 300.0
+const SPEED = 600.0
 
 func _physics_process(delta):
 	# Get the input direction and handle the movement/deceleration.

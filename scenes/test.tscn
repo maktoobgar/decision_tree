@@ -83,7 +83,6 @@ text = "Input"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-disabled = true
 text = "Define Attributes"
 
 [node name="Attribute" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2" instance=ExtResource("4_by8l0")]
@@ -103,6 +102,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="Generate" type="Button" parent="UI/Spliter/SideMenu/ScrollContainer/MarginContainer/VBoxContainer2/Buttons"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Generate"

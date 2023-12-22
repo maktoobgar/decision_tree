@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: rewritten the logic of creating the tree + debugged the gain and gain ratio calculation
 - 🎉 feat: massive work and finally it works and generates the tree
 - 🎉 feat: UI functionality completed
 - 🚀 perf: optimization on algorithms + docs

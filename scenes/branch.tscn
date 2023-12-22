@@ -19,10 +19,6 @@ radius = 24.0
 script = ExtResource("1_48d28")
 metadata/_edit_group_ = true
 
-[node name="Lines" type="Node2D" parent="."]
-unique_name_in_owner = true
-position = Vector2(0, 40)
-
 [node name="Box" type="Area2D" parent="."]
 
 [node name="BoxSprite" type="Sprite2D" parent="Box"]
@@ -76,6 +72,10 @@ texture = ExtResource("3_e3f1d")
 
 [node name="OutputCollision" type="CollisionShape2D" parent="Output"]
 shape = SubResource("CircleShape2D_huke6")
+
+[node name="Lines" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, 40)
 
 [connection signal="mouse_entered" from="Input" to="." method="_on_input_mouse_entered"]
 [connection signal="mouse_exited" from="Input" to="." method="_on_input_mouse_exited"]
