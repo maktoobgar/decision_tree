@@ -11,11 +11,8 @@ var attributes_count: int = 0
 var attributes: Array = []
 
 func _init():
-	var _pass = NodeTree.new("U Good?", 2).add_decision("Yes", NodeTree.new("Passs", 3)).add_decision("No", NodeTree.new("Fail", 3))
-	var _fail = NodeTree.new("Fail", 2)
-	var studied = NodeTree.new("Studied", 1).add_decision("Yes", _pass).add_decision("No", _fail)
-	var path = NodeTree.new("Sucked", 1).add_decision("No", NodeTree.new("Faill", 2)).add_decision("Yes", NodeTree.new("Pass", 2)).add_decision("Maybe", NodeTree.new("Pass", 2))
-	_tree = NodeTree.new("Age", 0).add_decision("Age>18", path).add_decision("Age<18", studied)
+	var gpa = NodeTree.new("GPA", 1).add_decision("High", NodeTree.new("Pass", 2)).add_decision("Medium", NodeTree.new("Fail", 2)).add_decision("Low", NodeTree.new("Fail", 2))
+	_tree = NodeTree.new("Studied", 0).add_decision("Yes", NodeTree.new("Pass", 1)).add_decision("No", gpa)
 
 func _ready():
 	Global.ui = %UI
